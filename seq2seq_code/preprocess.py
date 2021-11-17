@@ -126,11 +126,11 @@ def get_data(file_name):
 	secondary_vocab = secondary_vocab_out[0]
 	secondary_padding_index = secondary_vocab_out[1]
 
-	train_primary = convert_to_id(primary_vocab, pad[0][:7000])
-	test_primary = convert_to_id(primary_vocab, pad[0][7000:])
+	train_primary = convert_to_id(primary_vocab, pad[0][:100000])
+	test_primary = convert_to_id(primary_vocab, pad[0][100000:])
 
-	train_secondary = convert_to_id(secondary_vocab, pad[1][:7000])
-	test_secondary = convert_to_id(secondary_vocab, pad[1][7000:])
+	train_secondary = convert_to_id(secondary_vocab, pad[1][:100000])
+	test_secondary = convert_to_id(secondary_vocab, pad[1][100000:])
 
 	return train_primary, test_primary, train_secondary, test_secondary, primary_vocab, secondary_vocab, secondary_padding_index
 	

@@ -20,6 +20,12 @@ def train(model, train_french, train_english, eng_padding_index):
 	"""
 
 	input_size = train_french.shape[0]
+	indices = tf.range(start=0, limit=input_size, dtype=tf.int32)
+	idx = tf.random.shuffle(indices)
+
+	train_french = tf.gather(train_french, idx)
+	train_english = tf.gather(train_english, idx)
+
 
 	for i in range(0, input_size, model.batch_size):
 		with tf.GradientTape() as tape:
@@ -76,7 +82,9 @@ def test(model, test_french, test_english, eng_padding_index):
 def main():
 
 	print("Running preprocessing...")
-	train_primary, test_primary, train_secondary, test_secondary, secondary_vocab, primary_vocab, secondary_padding_index = get_data('../protein_secondary_structure_data/2018-06-06-pdb-intersect-pisces.csv')
+	# train_primary, test_primary, train_secondary, test_secondary, secondary_vocab, primary_vocab, secondary_padding_index = get_data('../protein_secondary_structure_data/2018-06-06-pdb-intersect-pisces.csv')
+	train_primary, test_primary, train_secondary, test_secondary, secondary_vocab, primary_vocab, secondary_padding_index = get_data('../protein_secondary_structure_data/2018-06-06-ss.cleaned.csv')
+
 	print("Preprocessing complete.")
 
 	model_args = (PRIMARY_WINDOW_SIZE, len(primary_vocab), SECONDARY_WINDOW_SIZE, len(secondary_vocab))
@@ -84,7 +92,7 @@ def main():
 	model = Transformer_Seq2Seq(*model_args)
 
 	train(model, train_primary, train_secondary, secondary_padding_index)
-	#test(model, test_primary, test_secondary, secondary_padding_index)
+	test(model, test_primary, test_secondary, secondary_padding_index)
 
 
 if __name__ == '__main__':
