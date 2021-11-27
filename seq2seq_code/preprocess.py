@@ -4,15 +4,6 @@ import tensorflow as tf
 from attenvis import AttentionVis
 av = AttentionVis()
 
-##########DO NOT CHANGE#####################
-PAD_TOKEN = "*PAD*"
-STOP_TOKEN = "*STOP*"
-START_TOKEN = "*START*"
-UNK_TOKEN = "*UNK*"
-PRIMARY_WINDOW_SIZE = 10
-SECONDARY_WINDOW_SIZE = 10
-##########DO NOT CHANGE#####################
-
 
 def pad_corpus(primary, secondary):
 	"""
