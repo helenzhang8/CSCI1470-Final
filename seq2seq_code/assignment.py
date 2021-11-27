@@ -102,11 +102,11 @@ def main():
 	model_args = (PRIMARY_WINDOW_SIZE, len(seq_vocab_train), SECONDARY_WINDOW_SIZE, len(sst8_vocab_train))
 
 	train_primary = seq_window_train[:10000]
-	train_secondary = sst8_window_train[:10000]
-	train_secondary_mask = sst8_mask_train[:10000]
+	train_secondary = sst3_window_train[:10000]
+	train_secondary_mask = sst3_mask_train[:10000]
 	test_primary = seq_window_test[10000:]
-	test_secondary = sst8_window_test[10000:]
-	test_secondary_mask = sst8_mask_test[10000:]
+	test_secondary = sst3_window_test[10000:]
+	test_secondary_mask = sst3_mask_test[10000:]
 	padding_index = -1
 
 	# print("TRAIN_PRIMARY: ", train_primary.shape)
