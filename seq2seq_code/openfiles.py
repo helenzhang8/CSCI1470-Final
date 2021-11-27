@@ -35,6 +35,9 @@ def opener(filename : str):
         seq_window, seq_mask = listToNumpyWindowed(seq_sequences)
         sst8_window, sst8_mask = listToNumpyWindowed(sst8_sequences)
         sst3_window, sst3_mask = listToNumpyWindowed(sst3_sequences)
+
+        print(seq_window.shape)
+        print(sst3_mask.shape)
         
         return seq_vocab, seq_window, seq_mask, sst8_vocab, sst8_window, sst8_mask, sst3_vocab, sst3_window, sst3_mask
             
@@ -82,7 +85,7 @@ def listToNumpyWindowed(sequences, window_size = 30, padding_symbol = -1):
     print(len(windowed))
     print(windowed[len(windowed) - 2])
     print(windowed[len(windowed) - 1])
-    return windowed, masked
+    return np.array(windowed), np.array(masked)
     
 
 opener("../protein_secondary_structure_data/2018-06-06-pdb-intersect-pisces.csv")
