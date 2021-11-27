@@ -1,7 +1,7 @@
 import csv
 import numpy as np
 
-def opener(filename : str):
+def opener(filename : str, window_size):
     with open(filename, newline='') as csvfile:
         filereader = csv.reader(csvfile, delimiter=',', quotechar='|')
 
@@ -32,12 +32,12 @@ def opener(filename : str):
     
         #print(len(seq_sequences))
         #print(seq_sequences[0:5])
-        seq_window, seq_mask = listToNumpyWindowed(seq_sequences)
-        sst8_window, sst8_mask = listToNumpyWindowed(sst8_sequences)
-        sst3_window, sst3_mask = listToNumpyWindowed(sst3_sequences)
+        seq_window, seq_mask = listToNumpyWindowed(seq_sequences, window_size)
+        sst8_window, sst8_mask = listToNumpyWindowed(sst8_sequences, window_size)
+        sst3_window, sst3_mask = listToNumpyWindowed(sst3_sequences, window_size)
 
-        print(seq_window.shape)
-        print(sst3_mask.shape)
+        # print(seq_window.shape)
+        # print(sst3_mask.shape)
         
         return seq_vocab, seq_window, seq_mask, sst8_vocab, sst8_window, sst8_mask, sst3_vocab, sst3_window, sst3_mask
             
@@ -54,6 +54,12 @@ def addToDict(dicter, char_list):
 def listToNumpyWindowed(sequences, window_size = 30, padding_symbol = -1, add_start = True, start_symbol = 50, add_stop = True, stop_symbol = 99):
     windowed = list()
     masked = list()
+
+    if add_start:
+        window_size -= 1
+    if add_stop:
+        window_size -= 1
+
     for seq in sequences:
         
         seqlen = len(seq)
@@ -120,10 +126,10 @@ def listToNumpyWindowed(sequences, window_size = 30, padding_symbol = -1, add_st
                     windowed.append(seqqer)
                     masked.append(masker)
 
-    print(len(windowed))
-    print(windowed[len(windowed) - 2])
-    print(windowed[len(windowed) - 1])
+    # print(len(windowed))
+    # print(windowed[len(windowed) - 2])
+    # print(windowed[len(windowed) - 1])
     return np.array(windowed), np.array(masked)
     
 
-opener("../protein_secondary_structure_data/2018-06-06-pdb-intersect-pisces.csv")
+# opener("../protein_secondary_structure_data/2018-06-06-pdb-intersect-pisces.csv")
