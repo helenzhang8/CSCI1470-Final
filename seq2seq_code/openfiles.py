@@ -14,6 +14,7 @@ def opener(filename : str, window_size):
         
         counter = 0
         for row in filereader:
+            counter += 1
             
             if (row[6] == 'False'): # only choose standard aa sequences
                 seq = list(row[2])
@@ -29,15 +30,12 @@ def opener(filename : str, window_size):
                 seq_sequences.append(seq_nums)
                 sst8_sequences.append(sst8_nums)
                 sst3_sequences.append(sst3_nums)
-    
+
         #print(len(seq_sequences))
         #print(seq_sequences[0:5])
-        seq_window, seq_mask = listToNumpyWindowed(seq_sequences, window_size)
+        seq_window, seq_mask = listToNumpyWindowed(seq_sequences, window_size, add_start=False)
         sst8_window, sst8_mask = listToNumpyWindowed(sst8_sequences, window_size)
         sst3_window, sst3_mask = listToNumpyWindowed(sst3_sequences, window_size)
-
-        # print(seq_window.shape)
-        # print(sst3_mask.shape)
         
         return seq_vocab, seq_window, seq_mask, sst8_vocab, sst8_window, sst8_mask, sst3_vocab, sst3_window, sst3_mask
             
@@ -55,11 +53,12 @@ def listToNumpyWindowed(sequences, window_size = 30, padding_symbol = -1, add_st
     windowed = list()
     masked = list()
 
-    if add_start:
-        window_size -= 1
+    # if add_start:
+    #     window_size -= 1
     if add_stop:
         window_size -= 1
 
+    print("SEQ LENGTH: ", len(sequences))
     for seq in sequences:
         
         seqlen = len(seq)
@@ -79,7 +78,7 @@ def listToNumpyWindowed(sequences, window_size = 30, padding_symbol = -1, add_st
                 seqqer.insert(0, start_symbol)
                 #masker = [0] + [masker]
                 masker.insert(0, 0)
-            
+
             windowed.append(seqqer)
             masked.append(masker)
             
@@ -102,7 +101,6 @@ def listToNumpyWindowed(sequences, window_size = 30, padding_symbol = -1, add_st
             masked.append(masker)
 
         else:
-
             for k in range(0, int(seqlen/window_size) + 1):
                 temper = seq[k * window_size : (k+ 1) * window_size]
                 

@@ -85,9 +85,9 @@ class Transformer_Seq2Seq(tf.keras.Model):
 		decoded_symbols = tf.argmax(input=prbs, axis=2)
 		accuracy = tf.reduce_mean(tf.boolean_mask(tf.cast(tf.equal(decoded_symbols, labels), dtype=tf.float32), mask))
 
-		print("DECODED: ", decoded_symbols)
-		print("LABELS: ", labels)
-		print("MASK: ", mask)
+		# print("DECODED: ", decoded_symbols)
+		# print("LABELS: ", labels)
+		# print("MASK: ", mask)
 		return accuracy
 
 	def loss_function(self, prbs, labels, mask):

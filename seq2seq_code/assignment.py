@@ -13,8 +13,8 @@ PAD_TOKEN = "*PAD*"
 STOP_TOKEN = "*STOP*"
 START_TOKEN = "*START*"
 UNK_TOKEN = "*UNK*"
-PRIMARY_WINDOW_SIZE = 30
-SECONDARY_WINDOW_SIZE = 30
+PRIMARY_WINDOW_SIZE = 50
+SECONDARY_WINDOW_SIZE = 50
 ##########DO NOT CHANGE#####################
 
 def train(model, train_primary, train_secondary, train_secondary_mask):
@@ -38,8 +38,8 @@ def train(model, train_primary, train_secondary, train_secondary_mask):
 
 	for i in range(0, input_size, model.batch_size):
 		with tf.GradientTape() as tape:
-			logits = model.call(train_primary[i:i + model.batch_size], train_secondary[i:i + model.batch_size])
-			loss = model.loss_function(logits, train_secondary[i:i + model.batch_size], train_secondary_mask[i:i + model.batch_size])
+			logits = model.call(train_primary[i:i + model.batch_size], train_secondary[i:i + model.batch_size, :-1])
+			loss = model.loss_function(logits, train_secondary[i:i + model.batch_size, 1:], train_secondary_mask[i:i + model.batch_size, 1:])
 			print(i, loss)
 		gradients = tape.gradient(loss, model.trainable_variables)
 		model.optimizer.apply_gradients(zip(gradients, model.trainable_variables))
@@ -66,13 +66,13 @@ def test(model, test_primary, test_secondary, test_secondary_mask):
 	total_words = 0
 
 	for i in range(0, input_size, model.batch_size):
-		probabilities = model.call(test_primary[i:i + model.batch_size], test_secondary[i:i + model.batch_size])
+		probabilities = model.call(test_primary[i:i + model.batch_size], test_secondary[i:i + model.batch_size, :-1])
 
 		words = tf.cast(tf.reduce_sum(sum(test_secondary_mask)), dtype=tf.float32)
 		total_words += words
 
-		loss = model.loss_function(probabilities, test_secondary[i:i + model.batch_size], test_secondary_mask[i:i + model.batch_size])
-		accuracy = model.accuracy_function(probabilities, test_secondary[i:i + model.batch_size], test_secondary_mask[i:i + model.batch_size])
+		loss = model.loss_function(probabilities, test_secondary[i:i + model.batch_size, 1:], test_secondary_mask[i:i + model.batch_size, 1:])
+		accuracy = model.accuracy_function(probabilities, test_secondary[i:i + model.batch_size, 1:], test_secondary_mask[i:i + model.batch_size, 1:])
 
 		batch_accuracy = words * accuracy
 		accuracy_acc += batch_accuracy
@@ -92,17 +92,21 @@ def main():
 	print("Running preprocessing...")
 	# train_primary, test_primary, train_secondary, test_secondary, secondary_vocab, primary_vocab, secondary_padding_index = get_data('../protein_secondary_structure_data/2018-06-06-pdb-intersect-pisces.csv')
 	#train_primary1, test_primary1, train_secondary1, test_secondary1, secondary_vocab1, primary_vocab1, secondary_padding_index1 = get_data('../protein_secondary_structure_data/2018-06-06-ss.cleaned.csv')
-	seq_vocab, seq_window, seq_mask, sst8_vocab, sst8_window, sst8_mask, sst3_vocab, sst3_window, sst3_mask = opener("../protein_secondary_structure_data/2018-06-06-pdb-intersect-pisces.csv", PRIMARY_WINDOW_SIZE)
+	# can change files, but they're the same one right now bc the other one is too big
+	seq_vocab_train, seq_window_train, seq_mask_train, sst8_vocab_train, sst8_window_train, sst8_mask_train, sst3_vocab_train, sst3_window_train, sst3_mask_train = opener("../protein_secondary_structure_data/2018-06-06-pdb-intersect-pisces.csv", PRIMARY_WINDOW_SIZE)
+	seq_vocab_test, seq_window_test, seq_mask_test, sst8_vocab_test, sst8_window_test, sst8_mask_test, sst3_vocab_test, sst3_window_test, sst3_mask_test = opener("../protein_secondary_structure_data/2018-06-06-pdb-intersect-pisces.csv", PRIMARY_WINDOW_SIZE)
 	print("Preprocessing complete.")
 
-	model_args = (PRIMARY_WINDOW_SIZE, len(seq_vocab), SECONDARY_WINDOW_SIZE, len(sst8_vocab))
-	train_size = 3000
-	train_primary = seq_window[:train_size]
-	train_secondary = sst8_window[:train_size]
-	train_secondary_mask = sst8_mask[:train_size]
-	test_primary = seq_window[train_size:]
-	test_secondary = sst8_window[train_size:]
-	test_secondary_mask = sst8_mask[train_size:]
+	print("TRAIN FILE LENGTH: ", sst8_window_train.shape)
+
+	model_args = (PRIMARY_WINDOW_SIZE, len(seq_vocab_train), SECONDARY_WINDOW_SIZE, len(sst8_vocab_train))
+
+	train_primary = seq_window_train[:10000]
+	train_secondary = sst8_window_train[:10000]
+	train_secondary_mask = sst8_mask_train[:10000]
+	test_primary = seq_window_test[10000:]
+	test_secondary = sst8_window_test[10000:]
+	test_secondary_mask = sst8_mask_test[10000:]
 	padding_index = -1
 
 	# print("TRAIN_PRIMARY: ", train_primary.shape)
