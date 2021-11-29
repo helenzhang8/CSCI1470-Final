@@ -66,7 +66,7 @@ def test(model, test_primary, test_secondary, test_secondary_mask):
 	total_words = 0
 
 	for i in range(0, input_size, model.batch_size):
-		probabilities = model.call(test_primary[i:i + model.batch_size], test_secondary[i:i + model.batch_size, :-1], force_teacher = False)
+		probabilities = model.call(test_primary[i:i + model.batch_size], test_secondary[i:i + model.batch_size, :-1], force_teacher = True)
 
 		words = tf.cast(tf.reduce_sum(sum(test_secondary_mask)), dtype=tf.float32)
 		total_words += words
