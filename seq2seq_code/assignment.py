@@ -38,7 +38,7 @@ def train(model, train_primary, train_secondary, train_secondary_mask):
 
 	for i in range(0, input_size, model.batch_size):
 		with tf.GradientTape() as tape:
-			logits = model.call(train_primary[i:i + model.batch_size], train_secondary[i:i + model.batch_size, :-1])
+			logits = model.call(train_primary[i:i + model.batch_size], train_secondary[i:i + model.batch_size, :-1], force_teacher = True)
 			loss = model.loss_function(logits, train_secondary[i:i + model.batch_size, 1:], train_secondary_mask[i:i + model.batch_size, 1:])
 			print(i, loss)
 		gradients = tape.gradient(loss, model.trainable_variables)
@@ -66,7 +66,7 @@ def test(model, test_primary, test_secondary, test_secondary_mask):
 	total_words = 0
 
 	for i in range(0, input_size, model.batch_size):
-		probabilities = model.call(test_primary[i:i + model.batch_size], test_secondary[i:i + model.batch_size, :-1], force_teacher = True)
+		probabilities = model.call(test_primary[i:i + model.batch_size], test_secondary[i:i + model.batch_size, :-1], force_teacher = False)
 
 		words = tf.cast(tf.reduce_sum(sum(test_secondary_mask)), dtype=tf.float32)
 		total_words += words
