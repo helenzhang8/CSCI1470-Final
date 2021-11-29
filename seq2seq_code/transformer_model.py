@@ -47,7 +47,7 @@ class Transformer_Seq2Seq(tf.keras.Model):
 
 
 	@tf.function
-	def call(self, encoder_input, decoder_input):
+	def call(self, encoder_input, decoder_input, force_teacher = True):
 		"""
 		:param encoder_input: batched ids corresponding to french sentences
 		:param decoder_input: batched ids corresponding to english sentences
@@ -58,21 +58,30 @@ class Transformer_Seq2Seq(tf.keras.Model):
 		
 		# french = seq / encoder_input
 		# english = sst3/sst8 / decoder_input
-		
-		#1) Add the positional embeddings to french sentence embeddings
-		french_embedding = tf.nn.embedding_lookup(self.french_embedding, encoder_input)
-		positional_french = self.positional_encoder_french.call(french_embedding)
-		#2) Pass the french sentence embeddings to the encoder
-		encoder_output = self.encoder(positional_french)
-		#3) Add positional embeddings to the english sentence embeddings
-		english_embedding = tf.nn.embedding_lookup(self.english_embedding, decoder_input)
-		positional_english = self.positional_encoder_english.call(english_embedding)
-		#4) Pass the english embeddings and output of your encoder, to the decoder
-		decoder_output = self.decoder(positional_english, context=encoder_output)
-		#5) Apply dense layer(s) to the decoder out to generate probabilities
-		prob = self.dense_1(decoder_output)
+		french_embeddings = tf.nn.embedding_lookup(self.french_embedding, encoder_input)
+		english_embeddings = tf.nn.embedding_lookup(self.english_embedding, decoder_input)
+
+		french_position = self.positional_encoder_french.call(french_embeddings)
+		english_position = self.positional_encoder_english.call(english_embeddings)
+
+		french_sum = french_embeddings + french_position
+		eng_sum = english_embeddings + english_position
+		print("shapes")
+		print(eng_sum.shape)
+		print(french_sum.shape)
+		french_encoded = self.encoder(french_sum)
+
+		if force_teacher:
+			decoder_output = self.decoder(eng_sum, context = french_encoded)
+		else:
+                        # TODO: how to effectively implement testing / inference without teacher forcing
+			decoder_output = self.decoder(french_encoded, context = french_encoded)
+
+		dense = self.dense_1(decoder_output)
 	
-		return prob
+		return dense
+
+
 
 	def accuracy_function(self, prbs, labels, mask):
 		"""
