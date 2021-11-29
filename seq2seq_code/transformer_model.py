@@ -56,8 +56,8 @@ class Transformer_Seq2Seq(tf.keras.Model):
 	
 		# TODO:
 		
-		# french = seq
-		# english = sst3/sst8
+		# french = seq / encoder_input
+		# english = sst3/sst8 / decoder_input
 		
 		#1) Add the positional embeddings to french sentence embeddings
 		french_embedding = tf.nn.embedding_lookup(self.french_embedding, encoder_input)
