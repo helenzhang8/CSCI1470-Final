@@ -66,10 +66,14 @@ def test(model, test_primary, test_secondary, test_secondary_mask):
 	total_words = 0
 
 	for i in range(0, input_size, model.batch_size):
-		probabilities = model.call(test_primary[i:i + model.batch_size], test_secondary[i:i + model.batch_size, :-1])
+		probabilities = model.call(test_primary[i:i + model.batch_size], test_secondary[i:i + model.batch_size, :-1], force_teacher = True)
 
 		words = tf.cast(tf.reduce_sum(sum(test_secondary_mask)), dtype=tf.float32)
 		total_words += words
+
+                # prints predictions vs actual
+		#print(np.argmax(probabilities[0], axis = 1))
+		#print(test_secondary[i:i + model.batch_size, 1:][0])
 
 		loss = model.loss_function(probabilities, test_secondary[i:i + model.batch_size, 1:], test_secondary_mask[i:i + model.batch_size, 1:])
 		accuracy = model.accuracy_function(probabilities, test_secondary[i:i + model.batch_size, 1:], test_secondary_mask[i:i + model.batch_size, 1:])

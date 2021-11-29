@@ -47,7 +47,7 @@ class Transformer_Seq2Seq(tf.keras.Model):
 
 
 	@tf.function
-	def call(self, encoder_input, decoder_input):
+	def call(self, encoder_input, decoder_input, force_teacher = True):
 		"""
 		:param encoder_input: batched ids corresponding to french sentences
 		:param decoder_input: batched ids corresponding to english sentences
@@ -70,7 +70,12 @@ class Transformer_Seq2Seq(tf.keras.Model):
 		print(eng_sum.shape)
 		print(french_sum.shape)
 		french_encoded = self.encoder(french_sum)
-		decoder_output = self.decoder(eng_sum, context = french_encoded)
+
+		if force_teacher:
+			decoder_output = self.decoder(eng_sum, context = french_encoded)
+		else:
+                        # TODO: how to effectively implement testing / inference without teacher forcing
+			decoder_output = self.decoder(french_encoded, context = french_encoded)
 
 		dense = self.dense_1(decoder_output)
 	
