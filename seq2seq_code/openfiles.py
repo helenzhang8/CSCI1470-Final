@@ -33,25 +33,33 @@ def opener(filename : str, window_size):
 
         #print(len(seq_sequences))
         #print(seq_sequences[0:5])
-        seq_window, seq_mask = listToNumpyWindowed(seq_sequences, window_size, add_start=False)
-        sst8_window, sst8_mask = listToNumpyWindowed(sst8_sequences, window_size)
-        sst3_window, sst3_mask = listToNumpyWindowed(sst3_sequences, window_size)
+        seq_window, seq_mask = listToNumpyWindowed(seq_sequences, window_size, add_start=False, vocab = seq_vocab)
+        sst8_window, sst8_mask = listToNumpyWindowed(sst8_sequences, window_size, vocab = sst8_vocab)
+        sst3_window, sst3_mask = listToNumpyWindowed(sst3_sequences, window_size, vocab = sst3_vocab)
         
         return seq_vocab, seq_window, seq_mask, sst8_vocab, sst8_window, sst8_mask, sst3_vocab, sst3_window, sst3_mask
             
 def addToDict(dicter, char_list):
     for char in char_list:
         if char not in dicter:
-            value = 0 if len(dicter) == 0 else max(dicter.values()) + 1
+            value = 1 if len(dicter) == 0 else max(dicter.values()) + 1 # reserve 0 for padding
             dicter[char] = value
             
     seqs = [dicter[i] for i in char_list]
     
     return seqs
 
-def listToNumpyWindowed(sequences, window_size = 30, padding_symbol = -1, add_start = True, start_symbol = 50, add_stop = True, stop_symbol = 99):
+def listToNumpyWindowed(sequences, window_size = 30, padding_symbol = 0, add_start = True, add_stop = True, vocab = None):
     windowed = list()
     masked = list()
+    if (vocab):
+        if (add_start):
+            vocab["START"] = max(vocab.values()) + 1
+            start_symbol = vocab["START"]
+        if (add_stop):
+            vocab["STOP"] = max(vocab.values()) + 1
+            stop_symbol = vocab["STOP"]
+        vocab["PADDING"] = 0
 
     # if add_start:
     #     window_size -= 1

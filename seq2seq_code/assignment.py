@@ -99,7 +99,7 @@ def main():
 
 	print("TRAIN FILE LENGTH: ", sst8_window_train.shape)
 
-	model_args = (PRIMARY_WINDOW_SIZE, len(seq_vocab_train), SECONDARY_WINDOW_SIZE, len(sst8_vocab_train))
+	model_args = (PRIMARY_WINDOW_SIZE, len(seq_vocab_train), SECONDARY_WINDOW_SIZE, len(sst3_vocab_train))
 
 	train_primary = seq_window_train[:10000]
 	train_secondary = sst3_window_train[:10000]
