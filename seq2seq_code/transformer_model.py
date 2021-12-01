@@ -19,12 +19,6 @@ class Transformer_Seq2Seq(tf.keras.Model):
 		self.sst_window_size = sst_window_size # The sst window size
 		######^^^ DO NOT CHANGE ^^^##################
 
-
-		# TODO:
-		# 1) Define any hyperparameters
-		# 2) Define embeddings, encoder, decoder, and feed forward layers
-
-		# Define batch size and optimizer/learning rate
 		self.batch_size = 100
 		self.embedding_size = 100
 		self.learning_rate = 0.001
@@ -74,14 +68,12 @@ class Transformer_Seq2Seq(tf.keras.Model):
 		if force_teacher:
 			decoder_output = self.decoder(eng_sum, context = prim_seq_encoded)
 		else:
-                        # TODO: how to effectively implement testing / inference without teacher forcing
+			# TODO: how to effectively implement testing / inference without teacher forcing
 			decoder_output = self.decoder(prim_seq_encoded, context = prim_seq_encoded)
 
 		dense = self.dense_1(decoder_output)
 	
 		return dense
-
-
 
 	def accuracy_function(self, prbs, labels, mask):
 		"""
@@ -98,9 +90,6 @@ class Transformer_Seq2Seq(tf.keras.Model):
 		decoded_symbols = tf.argmax(input=prbs, axis=2)
 		accuracy = tf.reduce_mean(tf.boolean_mask(tf.cast(tf.equal(decoded_symbols, labels), dtype=tf.float32), mask))
 
-		# print("DECODED: ", decoded_symbols)
-		# print("LABELS: ", labels)
-		# print("MASK: ", mask)
 		return accuracy
 
 	def loss_function(self, prbs, labels, mask):
@@ -114,7 +103,6 @@ class Transformer_Seq2Seq(tf.keras.Model):
 		:return: the loss of the model as a tensor
 		"""
 
-		# Note: you can reuse this from rnn_model.
 		loss = tf.keras.losses.sparse_categorical_crossentropy(labels, prbs)
 		loss = tf.boolean_mask(loss, mask)
 		loss = tf.math.reduce_sum(loss)

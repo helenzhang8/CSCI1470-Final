@@ -71,9 +71,9 @@ def test(model, test_primary, test_secondary, test_secondary_mask):
 		words = tf.cast(tf.reduce_sum(sum(test_secondary_mask)), dtype=tf.float32)
 		total_words += words
 
-                # prints predictions vs actual
-		#print(np.argmax(probabilities[0], axis = 1))
-		#print(test_secondary[i:i + model.batch_size, 1:][0])
+		# prints predictions vs actual
+		# print(np.argmax(probabilities[0], axis = 1))
+		# print(test_secondary[i:i + model.batch_size, 1:][0])
 
 		loss = model.loss_function(probabilities, test_secondary[i:i + model.batch_size, 1:], test_secondary_mask[i:i + model.batch_size, 1:])
 		accuracy = model.accuracy_function(probabilities, test_secondary[i:i + model.batch_size, 1:], test_secondary_mask[i:i + model.batch_size, 1:])
@@ -111,12 +111,6 @@ def main():
 	test_primary = seq_window_test[10000:]
 	test_secondary = sst3_window_test[10000:]
 	test_secondary_mask = sst3_mask_test[10000:]
-	padding_index = -1
-
-	# print("TRAIN_PRIMARY: ", train_primary.shape)
-	# print(train_secondary.shape)
-	# print(test_primary.shape)
-	# print(test_secondary.shape)
 
 	model = Transformer_Seq2Seq(*model_args)
 
