@@ -63,7 +63,6 @@ def listToNumpyWindowed(sequences, window_size=30, padding_symbol=0, add_start=T
     if add_stop:
         window_size -= 1
 
-    print("SEQ LENGTH: ", len(sequences))
     for seq in sequences:
 
         seqlen = len(seq)

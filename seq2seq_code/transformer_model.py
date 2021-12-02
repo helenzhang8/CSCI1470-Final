@@ -41,7 +41,7 @@ class Transformer_Seq2Seq(tf.keras.Model):
 
 
 	@tf.function
-	def call(self, encoder_input, decoder_input, force_teacher = True):
+	def call(self, encoder_input, decoder_input, force_teacher=True):
 		"""
 		:param encoder_input: batched ids corresponding to prim_seq sentences
 		:param decoder_input: batched ids corresponding to sst sentences
@@ -59,14 +59,15 @@ class Transformer_Seq2Seq(tf.keras.Model):
 		sst_position = self.positional_encoder_sst.call(sst_embeddings)
 
 		prim_seq_sum = prim_seq_embeddings + prim_seq_position
-		eng_sum = sst_embeddings + sst_position
+		sst_sum = sst_embeddings + sst_position
 
 		prim_seq_encoded = self.encoder(prim_seq_sum)
 
 		if force_teacher:
-			decoder_output = self.decoder(eng_sum, context=prim_seq_encoded)
+			decoder_output = self.decoder(sst_sum, context=prim_seq_encoded)
 		else:
 			# TODO: how to effectively implement testing / inference without teacher forcing
+			# decoder_output = tfa.seq2seq.BeamSearchDecoder()
 			decoder_output = self.decoder(prim_seq_encoded, context=prim_seq_encoded)
 
 		dense = self.dense_1(decoder_output)

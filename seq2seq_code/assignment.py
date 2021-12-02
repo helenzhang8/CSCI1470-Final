@@ -6,6 +6,7 @@ import numpy as np
 from preprocess import *
 from openfiles import *
 from transformer_model import Transformer_Seq2Seq
+from rnn_model import RNN_Seq2Seq
 import sys
 import random
 
@@ -20,6 +21,7 @@ UNK_TOKEN = "*UNK*"
 def parseArguments():
 	parser = argparse.ArgumentParser()
 	parser.add_argument("--teacher_forcing", action="store_true")
+	parser.add_argument("--transformer", action="store_true")
 	parser.add_argument("--sst8", action="store_true")
 	parser.add_argument("--batch_size", type=int, default=100)
 	parser.add_argument("--embedding_size", type=int, default=100)
@@ -69,9 +71,6 @@ def test(model, test_primary, test_secondary, test_secondary_mask):
 	:returns: a tuple containing at index 0 the perplexity of the test set and at index 1 the per symbol accuracy on test set, 
 	e.g. (my_perplexity, my_accuracy)
 	"""
-
-	# Note: Follow the same procedure as in train() to construct batches of data!
-
 	input_size = test_primary.shape[0]
 
 	accuracy_acc = 0
@@ -115,26 +114,28 @@ def main(args):
 	seq_vocab_test, seq_window_test, seq_mask_test, sst8_vocab_test, sst8_window_test, sst8_mask_test, sst3_vocab_test, sst3_window_test, sst3_mask_test = opener("../protein_secondary_structure_data/2018-06-06-pdb-intersect-pisces.csv", args.primary_window_size)
 	print("Preprocessing complete.")
 
-	print("TRAIN FILE LENGTH: ", sst8_window_train.shape)
-
 	model_args = (args.primary_window_size, len(seq_vocab_train), args.secondary_window_size, len(sst3_vocab_train), args.embedding_size, args.learning_rate)
-
+	cutoff = int(seq_window_train.shape[0]//(4/3))
+	print(cutoff)
 	if args.sst8:
-		train_primary = seq_window_train[:10000]
-		train_secondary = sst8_window_train[:10000]
-		train_secondary_mask = sst8_mask_train[:10000]
-		test_primary = seq_window_test[10000:]
-		test_secondary = sst8_window_test[10000:]
-		test_secondary_mask = sst8_mask_test[10000:]
+		train_primary = seq_window_train[:cutoff]
+		train_secondary = sst8_window_train[:cutoff]
+		train_secondary_mask = sst8_mask_train[:cutoff]
+		test_primary = seq_window_test[cutoff:]
+		test_secondary = sst8_window_test[cutoff:]
+		test_secondary_mask = sst8_mask_test[cutoff:]
 	else:
-		train_primary = seq_window_train[:10000]
-		train_secondary = sst3_window_train[:10000]
-		train_secondary_mask = sst3_mask_train[:10000]
-		test_primary = seq_window_test[10000:]
-		test_secondary = sst3_window_test[10000:]
-		test_secondary_mask = sst3_mask_test[10000:]
+		train_primary = seq_window_train[:cutoff]
+		train_secondary = sst3_window_train[:cutoff]
+		train_secondary_mask = sst3_mask_train[:cutoff]
+		test_primary = seq_window_test[cutoff:]
+		test_secondary = sst3_window_test[cutoff:]
+		test_secondary_mask = sst3_mask_test[cutoff:]
 
-	model = Transformer_Seq2Seq(*model_args)
+	if args.transformer:
+		model = Transformer_Seq2Seq(*model_args)
+	else:
+		model = RNN_Seq2Seq(*model_args)
 
 	for i in range(args.num_epochs):
 		train(args, model, train_primary, train_secondary, train_secondary_mask)
