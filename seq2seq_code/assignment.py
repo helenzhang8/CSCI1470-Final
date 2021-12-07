@@ -117,7 +117,11 @@ def main(args):
 	seq_vocab_test, seq_window_test, seq_mask_test, sst8_vocab_test, sst8_window_test, sst8_mask_test, sst3_vocab_test, sst3_window_test, sst3_mask_test = opener("protein_secondary_structure_data/2018-06-06-pdb-intersect-pisces.csv", args.primary_window_size)
 	print("Preprocessing complete.")
 
-	model_args = (args.primary_window_size, len(seq_vocab_train), args.secondary_window_size, len(sst3_vocab_train), args.embedding_size, args.learning_rate)
+	if args.sst8:
+		model_args = (args.primary_window_size, len(seq_vocab_train), args.secondary_window_size, len(sst8_vocab_train), args.embedding_size, args.learning_rate)
+	else:
+		model_args = (args.primary_window_size, len(seq_vocab_train), args.secondary_window_size, len(sst3_vocab_train), args.embedding_size, args.learning_rate)
+
 	cutoff = int(seq_window_train.shape[0]//(4/3))
 	print(cutoff)
 	if args.sst8:
