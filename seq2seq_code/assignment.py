@@ -21,13 +21,13 @@ UNK_TOKEN = "*UNK*"
 def parseArguments():
 	parser = argparse.ArgumentParser()
 	parser.add_argument("--teacher_forcing", action="store_true")
-	parser.add_argument("--transformer", action="store_true")
+	parser.add_argument("--rnn", action="store_true")
 	parser.add_argument("--sst8", action="store_true")
 	parser.add_argument("--batch_size", type=int, default=100)
 	parser.add_argument("--embedding_size", type=int, default=100)
 	parser.add_argument("--num_epochs", type=int, default=1)
-	parser.add_argument("--primary_window_size", type=int, default=50)
-	parser.add_argument("--secondary_window_size", type=int, default=50)
+	parser.add_argument("--primary_window_size", type=int, default=19)
+	parser.add_argument("--secondary_window_size", type=int, default=19)
 	parser.add_argument("--learning_rate", type=float, default=1e-3)
 	args = parser.parse_args()
 	return args
@@ -113,8 +113,8 @@ def main(args):
 	# train_primary, test_primary, train_secondary, test_secondary, secondary_vocab, primary_vocab, secondary_padding_index = get_data('../protein_secondary_structure_data/2018-06-06-pdb-intersect-pisces.csv')
 	#train_primary1, test_primary1, train_secondary1, test_secondary1, secondary_vocab1, primary_vocab1, secondary_padding_index1 = get_data('../protein_secondary_structure_data/2018-06-06-ss.cleaned.csv')
 	# can change files, but they're the same one right now bc the other one is too big
-	seq_vocab_train, seq_window_train, seq_mask_train, sst8_vocab_train, sst8_window_train, sst8_mask_train, sst3_vocab_train, sst3_window_train, sst3_mask_train = opener("../protein_secondary_structure_data/2018-06-06-pdb-intersect-pisces.csv", args.primary_window_size)
-	seq_vocab_test, seq_window_test, seq_mask_test, sst8_vocab_test, sst8_window_test, sst8_mask_test, sst3_vocab_test, sst3_window_test, sst3_mask_test = opener("../protein_secondary_structure_data/2018-06-06-pdb-intersect-pisces.csv", args.primary_window_size)
+	seq_vocab_train, seq_window_train, seq_mask_train, sst8_vocab_train, sst8_window_train, sst8_mask_train, sst3_vocab_train, sst3_window_train, sst3_mask_train = opener("protein_secondary_structure_data/2018-06-06-pdb-intersect-pisces.csv", args.primary_window_size)
+	seq_vocab_test, seq_window_test, seq_mask_test, sst8_vocab_test, sst8_window_test, sst8_mask_test, sst3_vocab_test, sst3_window_test, sst3_mask_test = opener("protein_secondary_structure_data/2018-06-06-pdb-intersect-pisces.csv", args.primary_window_size)
 	print("Preprocessing complete.")
 
 	model_args = (args.primary_window_size, len(seq_vocab_train), args.secondary_window_size, len(sst3_vocab_train), args.embedding_size, args.learning_rate)
@@ -135,10 +135,10 @@ def main(args):
 		test_secondary = sst3_window_test[cutoff:]
 		test_secondary_mask = sst3_mask_test[cutoff:]
 
-	if args.transformer:
-		model = Transformer_Seq2Seq(*model_args)
-	else:
+	if args.rnn:
 		model = RNN_Seq2Seq(*model_args)
+	else:
+		model = Transformer_Seq2Seq(*model_args)
 
 	for i in range(args.num_epochs):
 		train(args, model, train_primary, train_secondary, train_secondary_mask)
