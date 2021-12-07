@@ -21,7 +21,7 @@ UNK_TOKEN = "*UNK*"
 def parseArguments():
 	parser = argparse.ArgumentParser()
 	parser.add_argument("--teacher_forcing", action="store_true")
-	parser.add_argument("--transformer", action="store_true")
+	parser.add_argument("--rnn", action="store_true")
 	parser.add_argument("--sst8", action="store_true")
 	parser.add_argument("--batch_size", type=int, default=100)
 	parser.add_argument("--embedding_size", type=int, default=100)
@@ -78,7 +78,7 @@ def test(model, test_primary, test_secondary, test_secondary_mask):
 	total_words = 0
 
 	for i in range(0, input_size, args.batch_size):
-		probabilities = model.call(test_primary[i:i + args.batch_size], test_secondary[i:i + args.batch_size, :-1], force_teacher=args.teacher_forcing)
+		probabilities = model.call(test_primary[i:i + args.batch_size], test_secondary[i:i + args.batch_size, :-1], force_teacher=False)
 
 		words = tf.cast(tf.reduce_sum(sum(test_secondary_mask)), dtype=tf.float32)
 		total_words += words
@@ -132,10 +132,10 @@ def main(args):
 		test_secondary = sst3_window_test[cutoff:]
 		test_secondary_mask = sst3_mask_test[cutoff:]
 
-	if args.transformer:
-		model = Transformer_Seq2Seq(*model_args)
-	else:
+	if args.rnn:
 		model = RNN_Seq2Seq(*model_args)
+	else:
+		model = Transformer_Seq2Seq(*model_args)
 
 	for i in range(args.num_epochs):
 		train(args, model, train_primary, train_secondary, train_secondary_mask)
