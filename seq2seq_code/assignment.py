@@ -51,11 +51,14 @@ def train(args, model, train_primary, train_secondary, train_secondary_mask):
 	train_primary = tf.gather(train_primary, idx)
 	train_secondary = tf.gather(train_secondary, idx)
 
+	percent_to_teacher_force = 0.25
+
 	for i in range(0, input_size, args.batch_size):
 		with tf.GradientTape() as tape:
-			logits = model.call(train_primary[i:i + args.batch_size], train_secondary[i:i + args.batch_size, :-1], force_teacher=args.teacher_forcing)
+			logits = model.call(train_primary[i:i + args.batch_size], train_secondary[i:i + args.batch_size, :-1],
+					    force_teacher= True if i < percent_to_teacher_force * input_size else False)
 			loss = model.loss_function(logits, train_secondary[i:i + args.batch_size, 1:], train_secondary_mask[i:i + args.batch_size, 1:])
-			print(i, loss)
+			print(i, loss) # is final
 		gradients = tape.gradient(loss, model.trainable_variables)
 		model.optimizer.apply_gradients(zip(gradients, model.trainable_variables))
 
@@ -78,21 +81,21 @@ def test(model, test_primary, test_secondary, test_secondary_mask):
 	total_words = 0
 
 	for i in range(0, input_size, args.batch_size):
-		probabilities = model.call(test_primary[i:i + args.batch_size], test_secondary[i:i + args.batch_size, :-1], force_teacher=args.teacher_forcing)
+		probabilities = model.call(test_primary[i:i + args.batch_size], test_secondary[i:i + args.batch_size, :-1], force_teacher=False)
 
-		words = tf.cast(tf.reduce_sum(sum(test_secondary_mask)), dtype=tf.float32)
-		total_words += words
+	words = tf.cast(tf.reduce_sum(sum(test_secondary_mask)), dtype=tf.float32)
+	total_words += words
 
-		# prints predictions vs actual
-		# print(np.argmax(probabilities[0], axis = 1))
-		# print(test_secondary[i:i + model.batch_size, 1:][0])
+	# prints predictions vs actual
+	# print(np.argmax(probabilities[0], axis = 1))
+	# print(test_secondary[i:i + model.batch_size, 1:][0])
 
-		loss = model.loss_function(probabilities, test_secondary[i:i + args.batch_size, 1:], test_secondary_mask[i:i + args.batch_size, 1:])
-		accuracy = model.accuracy_function(probabilities, test_secondary[i:i + args.batch_size, 1:], test_secondary_mask[i:i + args.batch_size, 1:])
+	loss = model.loss_function(probabilities, test_secondary[i:i + args.batch_size, 1:], test_secondary_mask[i:i + args.batch_size, 1:])
+	accuracy = model.accuracy_function(probabilities, test_secondary[i:i + args.batch_size, 1:], test_secondary_mask[i:i + args.batch_size, 1:])
 
-		batch_accuracy = words * accuracy
-		accuracy_acc += batch_accuracy
-		loss_acc += loss
+	batch_accuracy = words * accuracy
+	accuracy_acc += batch_accuracy
+	loss_acc += loss
 
 	accuracy = accuracy_acc/total_words
 	avg_loss = loss_acc/total_words
