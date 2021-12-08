@@ -113,8 +113,8 @@ def main(args):
 	# train_primary, test_primary, train_secondary, test_secondary, secondary_vocab, primary_vocab, secondary_padding_index = get_data('../protein_secondary_structure_data/2018-06-06-pdb-intersect-pisces.csv')
 	#train_primary1, test_primary1, train_secondary1, test_secondary1, secondary_vocab1, primary_vocab1, secondary_padding_index1 = get_data('../protein_secondary_structure_data/2018-06-06-ss.cleaned.csv')
 	# can change files, but they're the same one right now bc the other one is too big
-	seq_vocab_train, seq_window_train, seq_mask_train, sst8_vocab_train, sst8_window_train, sst8_mask_train, sst3_vocab_train, sst3_window_train, sst3_mask_train = opener("protein_secondary_structure_data/2018-06-06-pdb-intersect-pisces.csv", args.primary_window_size)
-	seq_vocab_test, seq_window_test, seq_mask_test, sst8_vocab_test, sst8_window_test, sst8_mask_test, sst3_vocab_test, sst3_window_test, sst3_mask_test = opener("protein_secondary_structure_data/2018-06-06-pdb-intersect-pisces.csv", args.primary_window_size)
+	seq_vocab_train, seq_window_train, seq_mask_train, sst8_vocab_train, sst8_window_train, sst8_mask_train, sst3_vocab_train, sst3_window_train, sst3_mask_train = opener("../protein_secondary_structure_data/2018-06-06-pdb-intersect-pisces.csv", args.primary_window_size)
+	seq_vocab_test, seq_window_test, seq_mask_test, sst8_vocab_test, sst8_window_test, sst8_mask_test, sst3_vocab_test, sst3_window_test, sst3_mask_test = opener("../protein_secondary_structure_data/2018-06-06-pdb-intersect-pisces.csv", args.primary_window_size)
 	print("Preprocessing complete.")
 
 	if args.sst8:
