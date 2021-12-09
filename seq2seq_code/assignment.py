@@ -30,8 +30,8 @@ def parseArguments():
     parser.add_argument("--batch_size", type=int, default=100)
     parser.add_argument("--embedding_size", type=int, default=100)
     parser.add_argument("--num_epochs", type=int, default=1)
-    parser.add_argument("--primary_window_size", type=int, default=30)
-    parser.add_argument("--secondary_window_size", type=int, default=30)
+    parser.add_argument("--primary_window_size", type=int, default=19)
+    parser.add_argument("--secondary_window_size", type=int, default=19)
     parser.add_argument("--learning_rate", type=float, default=1e-3)
     args = parser.parse_args()
     return args
